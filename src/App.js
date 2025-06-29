@@ -1,82 +1,4 @@
-Visão Geral
-Vamos seguir 3 fases:
-
-Fase 1: Criar a Estrutura Base: Usaremos o comando create-react-app para criar o esqueleto do projeto.
-
-Fase 2: Instalar Dependências e Configurar o Estilo: Instalaremos as bibliotecas extra (firebase, lucide-react) e o Tailwind CSS, que é o responsável pelo visual da aplicação.
-
-Fase 3: Adicionar os Nossos Ficheiros: Substituiremos os ficheiros padrão pelos que desenvolvemos e adicionaremos os ficheiros para o Docker.
-
-Fase 1: Criar a Estrutura Base do Projeto
-Abra o Visual Studio Code.
-
-Vá ao menu superior e clique em Terminal -> New Terminal. Um terminal irá abrir na parte inferior do editor.
-
-No terminal, navegue até à sua pasta de projetos:
-
-cd C:\Users\fabio\projetos
-
-Agora, execute o comando oficial para criar um novo projeto React. Isto irá criar uma nova pasta appvitapersonal com todos os ficheiros iniciais.
-
-npx create-react-app appvitapersonal
-
-(Isto pode demorar alguns minutos).
-
-Após a conclusão, entre na nova pasta do projeto:
-
-cd appvitapersonal
-
-Fase 2: Instalar Dependências e Configurar o Estilo (Tailwind CSS)
-Agora, vamos adicionar as bibliotecas que a nossa aplicação precisa.
-
-Instale as Bibliotecas da Aplicação: No terminal (já dentro da pasta appvitapersonal), execute:
-
-npm install firebase lucide-react
-
-Instale o Tailwind CSS: Esta é a biblioteca de design que usamos.
-
-npm install -D tailwindcss postcss autoprefixer
-
-Crie Manualmente os Ficheiros de Configuração: Na raiz da sua pasta appvitapersonal (ao mesmo nível que package.json), crie os dois ficheiros seguintes:
-
-Crie o ficheiro tailwind.config.js e cole isto dentro:
-
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-
-Crie o ficheiro postcss.config.js e cole isto dentro:
-
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-
-Configure o CSS Principal: Vá para a pasta src e abra o ficheiro index.css. Apague todo o conteúdo e cole estas três linhas:
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-Fase 3: Adicionar os Nossos Ficheiros
-Agora vamos substituir os ficheiros genéricos pelos ficheiros do nosso appvitapersonal.
-
-Ficheiro Principal da App (src/App.js):
-
-Na pasta src, abra o App.js.
-
-Apague todo o conteúdo e cole o código final e corrigido da nossa aplicação:
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, onSnapshot, serverTimestamp, getDocs } from 'firebase/firestore';
@@ -110,57 +32,46 @@ async function callGemini(prompt) {
             body: JSON.stringify(payload)
         });
         if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody}`);
+            throw new Error(`API Error: ${response.status}`);
         }
         const result = await response.json();
         if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
             return result.candidates[0].content.parts[0].text;
         } else {
-            console.warn("Gemini response is not in the expected format:", result);
-            if (result.candidates && result.candidates[0]?.finishReason === 'SAFETY') {
-                return "A resposta foi bloqueada por razões de segurança. Por favor, tente um prompt diferente.";
-            }
-            return "Não foi possível obter uma resposta da IA. Tente novamente.";
+            return "Não foi possível obter uma resposta da IA.";
         }
     } catch (error) {
         console.error("Error calling Gemini API:", error);
-        return "Ocorreu um erro ao comunicar com a IA. Verifique sua conexão ou tente mais tarde.";
+        return "Ocorreu um erro ao comunicar com a IA.";
     }
 }
 
 // --- DADOS DO GUIA (Exercícios, Alimentos) ---
 const exercises = {
     calisthenics: [
-        { name: "Agachamento", sets: "3", reps: "8-12", group: "Pernas e Glúteos", desc: "Mantenha as costas retas e desça como se fosse sentar." },
-        { name: "Flexão de Braço", sets: "3", reps: "Até a falha", group: "Peito, Ombros, Tríceps", desc: "Corpo em linha reta. Se necessário, comece com os joelhos no chão." },
-        { name: "Remada Invertida", sets: "3", reps: "8-12", group: "Costas e Bíceps", desc: "Use uma mesa ou barra baixa. Puxe o peito em direção à barra." },
-        { name: "Prancha Abdominal", sets: "3", reps: "30-60s", group: "Core", desc: "Mantenha o corpo reto, contraindo abdômen e glúteos." },
-        { name: "Afundo", sets: "3", reps: "8-12 por perna", group: "Pernas e Glúteos", desc: "Dê um passo à frente e desça até os joelhos dobrarem 90 graus." },
-        { name: "Mergulho no Banco", sets: "3", reps: "8-12", group: "Tríceps", desc: "Use uma cadeira estável. Baixe o corpo dobrando os cotovelos." }
+        { name: "Agachamento", sets: "3", reps: "8-12" },
+        { name: "Flexão de Braço", sets: "3", reps: "Até a falha" },
+        { name: "Remada Invertida", sets: "3", reps: "8-12" },
+        { name: "Prancha Abdominal", sets: "3", reps: "30-60s" },
+        { name: "Afundo", sets: "3", reps: "8-12 por perna" },
+        { name: "Mergulho no Banco", sets: "3", reps: "8-12" }
     ],
-    cardio: {
-        beginner: "Caminhada Rápida ou Corrida Leve",
-        duration: "30-45 minutos"
-    }
+    cardio: { beginner: "Caminhada Rápida ou Corrida Leve", duration: "30-45 minutos" }
 };
 
 const weeklySchedule = {
-    1: { type: "Força", details: exercises.calisthenics },
-    2: { type: "Cardio", details: exercises.cardio },
-    3: { type: "Força", details: exercises.calisthenics },
-    4: { type: "Cardio", details: exercises.cardio },
-    5: { type: "Força", details: exercises.calisthenics },
-    6: { type: "Descanso Ativo", details: { name: "Caminhada Leve", duration: "30 min" } },
-    0: { type: "Descanso", details: null } // Domingo
+    1: { type: "Força", details: exercises.calisthenics }, 2: { type: "Cardio", details: exercises.cardio },
+    3: { type: "Força", details: exercises.calisthenics }, 4: { type: "Cardio", details: exercises.cardio },
+    5: { type: "Força", details: exercises.calisthenics }, 6: { type: "Descanso Ativo", details: { name: "Caminhada Leve", duration: "30 min" } },
+    0: { type: "Descanso", details: null }
 };
 
 const foodList = {
     Proteínas: ["Ovos", "Peito de Frango", "Feijão", "Lentilha", "Atum em Lata", "Iogurte Natural", "Cortes de carne económicos (acém, patinho)"],
     "Carboidratos Complexos": ["Arroz Integral", "Batata-doce", "Mandioca (Aipim)", "Inhame", "Aveia em flocos", "Pão Integral"],
     "Gorduras Saudáveis": ["Amendoim", "Pasta de amendoim integral", "Azeite de oliva", "Abacate"],
-    "Legumes e Verduras": ["Folhas verdes (alface, couve)", "Brócolis", "Couve-flor", "Cenoura", "Tomate", "Cebola", "Abóbora"],
-    Frutas: ["Banana", "Maçã", "Laranja", "Mamão", "Melancia", "Abacaxi"]
+    "Legumes e Verduras": ["Folhas verdes", "Brócolis", "Couve-flor", "Cenoura", "Tomate", "Cebola", "Abóbora"],
+    Frutas: ["Banana", "Maçã", "Laranja", "Mamão", "Melancia"]
 };
 
 // --- COMPONENTES DA UI ---
@@ -169,12 +80,9 @@ const LoginScreen = ({ onLogin }) => (
         <div className="text-center">
             <BrainCircuit className="w-24 h-24 mx-auto text-cyan-400 mb-4"/>
             <h1 className="text-4xl md:text-5xl font-bold mb-2">Bem-vindo ao appvitapersonal</h1>
-            <p className="text-lg text-gray-300 mb-8">Seu assistente inteligente de fitness e nutrição.</p>
-            <button
-                onClick={onLogin}
-                className="flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-gray-200 transition-all transform hover:scale-105"
-            >
-                <img src="https://www.google.com/favicon.ico" alt="Google icon" className="w-6 h-6"/>
+            <p className="text-lg text-gray-300 mb-8">O seu assistente inteligente de fitness e nutrição.</p>
+            <button onClick={onLogin} className="flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-gray-200 transition-all transform hover:scale-105">
+                <img src="https://www.google.com/favicon.ico" alt="Ícone do Google" className="w-6 h-6"/>
                 Entrar com o Google
             </button>
         </div>
@@ -188,12 +96,12 @@ const GeminiModal = ({ isOpen, onClose, title, content, isLoading }) => {
             <div className="bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-cyan-400 flex items-center gap-2"><Sparkles /> {title}</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white">&times;</button>
+                    <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                 </div>
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center gap-3 text-white h-40">
                         <Bot className="w-10 h-10 animate-pulse text-cyan-500" />
-                        <span>A IA está trabalhando para você...</span>
+                        <span>A IA está a trabalhar para si...</span>
                     </div>
                 ) : (
                     <div className="prose prose-invert max-w-none prose-p:my-2 prose-headings:text-cyan-300 prose-strong:text-white">
@@ -238,9 +146,7 @@ const Header = ({ user, onNavigate, onLogout, activeView }) => {
                         value={activeView}
                         className="bg-gray-700 text-white p-2 rounded-md"
                     >
-                        {navItems.map(item => (
-                            <option key={item.id} value={item.id}>{item.label}</option>
-                        ))}
+                        {navItems.map(item => (<option key={item.id} value={item.id}>{item.label}</option>))}
                     </select>
                 </div>
                 <div className="flex items-center gap-3">
@@ -272,33 +178,33 @@ const ProfileSetup = ({ onSave, initialData, isEditing = false }) => {
             <div className="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-2xl text-white">
                 <div className="text-center mb-8">
                     <User className="w-16 h-16 mx-auto text-cyan-400 mb-4"/>
-                    <h2 className="text-3xl font-bold">{isEditing ? 'Atualize seu Perfil' : 'Complete seu Perfil'}</h2>
-                    <p className="text-gray-400 mt-2">{isEditing ? 'Ajuste seus dados para recalcular as metas.' : 'Só mais um passo! Precisamos desses dados para criar seu plano.'}</p>
+                    <h2 className="text-3xl font-bold">{isEditing ? 'Atualize o seu Perfil' : 'Complete o seu Perfil'}</h2>
+                    <p className="text-gray-400 mt-2">{isEditing ? 'Ajuste os seus dados para recalcular as metas.' : 'Só mais um passo! Precisamos destes dados para criar o seu plano.'}</p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">Idade</label>
-                        <input type="number" name="age" value={formData.age} onChange={handleChange} required className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white focus:ring-2 focus:ring-cyan-500" placeholder="Ex: 30" />
+                        <input type="number" name="age" value={formData.age} onChange={handleChange} required className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white" placeholder="Ex: 30" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label>
-                        <input type="number" name="weight" value={formData.weight} onChange={handleChange} required step="0.1" className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white focus:ring-2 focus:ring-cyan-500" placeholder="Ex: 85.5" />
+                        <input type="number" name="weight" value={formData.weight} onChange={handleChange} required step="0.1" className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white" placeholder="Ex: 85.5" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label>
-                        <input type="number" name="height" value={formData.height} onChange={handleChange} required className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white focus:ring-2 focus:ring-cyan-500" placeholder="Ex: 175" />
+                        <input type="number" name="height" value={formData.height} onChange={handleChange} required className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white" placeholder="Ex: 175" />
                     </div>
                     <div>
                          <label className="block text-sm font-medium text-gray-300 mb-1">Nível de Atividade</label>
-                        <select name="activityLevel" value={formData.activityLevel} onChange={handleChange} className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white focus:ring-2 focus:ring-cyan-500">
-                            <option value="1.2">Sedentário (pouco ou nenhum exercício)</option>
-                            <option value="1.375">Levemente Ativo (1-3 dias/semana)</option>
-                            <option value="1.55">Moderadamente Ativo (3-5 dias/semana)</option>
-                            <option value="1.725">Muito Ativo (6-7 dias/semana)</option>
+                        <select name="activityLevel" value={formData.activityLevel} onChange={handleChange} className="w-full bg-gray-700 border border-gray-600 rounded-md p-3 text-white">
+                            <option value="1.2">Sedentário</option>
+                            <option value="1.375">Levemente Ativo</option>
+                            <option value="1.55">Moderadamente Ativo</option>
+                            <option value="1.725">Muito Ativo</option>
                         </select>
                     </div>
-                    <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-md transition-transform transform hover:scale-105">
-                        {isEditing ? 'Salvar Alterações' : 'Criar Meu Plano'}
+                    <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-md">
+                        {isEditing ? 'Salvar Alterações' : 'Criar o Meu Plano'}
                     </button>
                 </form>
             </div>
@@ -308,9 +214,7 @@ const ProfileSetup = ({ onSave, initialData, isEditing = false }) => {
 
 const StatCard = ({ icon, title, value, unit, color }) => (
     <div className="bg-gray-700 p-4 rounded-lg shadow-lg flex items-center space-x-4">
-        <div className={`p-3 rounded-full ${color}`}>
-            {icon}
-        </div>
+        <div className={`p-3 rounded-full ${color}`}>{icon}</div>
         <div>
             <p className="text-sm text-gray-300">{title}</p>
             <p className="text-xl font-bold text-white">{value} <span className="text-base font-normal text-gray-400">{unit}</span></p>
@@ -326,7 +230,7 @@ const Dashboard = ({ user }) => {
         <div className="space-y-6">
             <h2 className="text-3xl font-bold text-white">{greeting}, {user.displayName.split(' ')[0]}!</h2>
              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h3 className="text-xl font-semibold text-cyan-400 mb-4 flex items-center gap-2"><Target /> Suas Metas Diárias</h3>
+                <h3 className="text-xl font-semibold text-cyan-400 mb-4 flex items-center gap-2"><Target /> As Suas Metas Diárias</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <StatCard icon={<Flame className="w-6 h-6"/>} title="Calorias" value={user.profile.calorieTarget} unit="kcal" color="bg-red-500"/>
                     <StatCard icon={<Dumbbell className="w-6 h-6"/>} title="Proteínas" value={user.profile.macros.protein} unit="g" color="bg-blue-500"/>
@@ -344,16 +248,12 @@ const Dashboard = ({ user }) => {
                                 <span className="text-sm font-medium bg-cyan-900 text-cyan-300 py-1 px-3 rounded-full">{todayWorkout.details.length} exercícios</span>
                              </div>
                         </div>
-                    ) : todayWorkout.type.includes("Cardio") ? (
-                        <p className="text-gray-300">{todayWorkout.details.beginner} por {todayWorkout.details.duration}.</p>
-                    ) : (
-                         <p className="text-gray-300">{todayWorkout.details ? `${todayWorkout.details.name} por ${todayWorkout.details.duration}` : "Descanse e recupere-se. O sono é crucial!"}</p>
-                    )}
+                    ) : (<p className="text-gray-300">{todayWorkout.details ? `${todayWorkout.details.name} por ${todayWorkout.details.duration}` : "Descanse e recupere-se."}</p>)}
                 </div>
                 <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
                     <h3 className="text-xl font-semibold text-cyan-400 mb-4 flex items-center gap-2"><Droplet /> Dica de Hidratação</h3>
                      <p className="text-gray-300">
-                        Beba água ao longo do dia. Um bom alvo é 35ml por kg de peso corporal. Para você: <span className="font-bold text-white">{(user.profile.weight * 35 / 1000).toFixed(1)} litros</span> por dia.
+                        Beba água ao longo do dia. Um bom alvo é 35ml por kg de peso corporal. Para si: <span className="font-bold text-white">{(user.profile.weight * 35 / 1000).toFixed(1)} litros</span> por dia.
                     </p>
                 </div>
             </div>
@@ -366,7 +266,7 @@ const WorkoutPlan = () => {
     const todayIndex = new Date().getDay();
     return (
         <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-white mb-4">Seu Plano de Treino Semanal</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">O Seu Plano de Treino Semanal</h2>
             <div className="space-y-4">
                 {days.map((day, index) => {
                     const workout = weeklySchedule[index];
@@ -389,15 +289,7 @@ const WorkoutPlan = () => {
                                    ))}
                                </div>
                            )}
-                           {workout.type.includes("Cardio") && (
-                                <p className="mt-2 text-gray-300">{workout.details.beginner} por {workout.details.duration}.</p>
-                           )}
-                           {workout.type.includes("Descanso Ativo") && (
-                                <p className="mt-2 text-gray-300">{workout.details.name} por {workout.details.duration}</p>
-                           )}
-                            {workout.type === "Descanso" && (
-                                <p className="mt-2 text-gray-300">Recuperação total. Essencial para o crescimento muscular.</p>
-                           )}
+                           {workout.type === "Descanso" && (<p className="mt-2 text-gray-300">Recuperação total. Essencial para o crescimento muscular.</p>)}
                         </div>
                     );
                 })}
@@ -416,26 +308,21 @@ const NutritionPlan = ({ onModalAction }) => {
     };
     return (
         <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-white mb-4">Guia Nutricional Econômico</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">Guia Nutricional Económico</h2>
             <div className="bg-gray-800 p-6 rounded-lg">
                 <h3 className="text-xl font-semibold text-cyan-400 mb-3">Assistente de Receitas IA</h3>
-                <p className="text-gray-300 mb-4">Sem inspiração? Deixe que a IA crie uma receita saudável para você com os alimentos do seu plano.</p>
-                <button 
-                    onClick={handleGenerateRecipe}
-                    className="flex items-center justify-center gap-2 w-full md:w-auto bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-bold py-2 px-6 rounded-md transition-all"
-                >
+                <p className="text-gray-300 mb-4">Sem inspiração? Deixe que a IA crie uma receita saudável para si com os alimentos do seu plano.</p>
+                <button onClick={handleGenerateRecipe} className="flex items-center justify-center gap-2 w-full md:w-auto bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-bold py-2 px-6 rounded-md transition-all">
                     <Sparkles className="w-5 h-5"/>
                     ✨ Gerar Receita do Dia
                 </button>
             </div>
-            <p className="text-gray-300">Concentre-se em "comida de verdade". Use esta lista para montar suas refeições e marmitas, garantindo que você atinja suas metas de macros de forma barata e saudável.</p>
+            <p className="text-gray-300">Concentre-se em "comida de verdade". Use esta lista para montar as suas refeições, garantindo que atinge as suas metas de macros de forma barata e saudável.</p>
             {Object.entries(foodList).map(([category, items]) => (
                 <div key={category} className="bg-gray-800 p-4 rounded-lg">
                     <h3 className="text-xl font-semibold text-cyan-400 mb-3">{category}</h3>
                     <div className="flex flex-wrap gap-2">
-                        {items.map(item => (
-                            <span key={item} className="bg-gray-700 text-white py-1 px-3 rounded-full text-sm">{item}</span>
-                        ))}
+                        {items.map(item => (<span key={item} className="bg-gray-700 text-white py-1 px-3 rounded-full text-sm">{item}</span>))}
                     </div>
                 </div>
             ))}
@@ -445,24 +332,15 @@ const NutritionPlan = ({ onModalAction }) => {
 
 const ProgressTracker = ({ user, progress, onAddProgress, onModalAction }) => {
     const [formData, setFormData] = useState({ weight: user.profile.weight, waist: '' });
-    useEffect(() => {
-        setFormData(prev => ({ ...prev, weight: user.profile.weight }));
-    }, [user.profile.weight]);
-    const handleChange = e => {
-        setFormData(prev => ({...prev, [e.target.name]: e.target.value}));
-    };
-    const handleSubmit = e => {
-        e.preventDefault();
-        onAddProgress(formData);
-        setFormData({ weight: user.profile.weight, waist: '' });
-    };
+    useEffect(() => { setFormData(prev => ({ ...prev, weight: user.profile.weight })); }, [user.profile.weight]);
+    const handleChange = e => { setFormData(prev => ({...prev, [e.target.name]: e.target.value})); };
+    const handleSubmit = e => { e.preventDefault(); onAddProgress(formData); setFormData({ weight: user.profile.weight, waist: '' }); };
     const handleAnalyzeProgress = async () => {
         if (progress.length < 2) return;
         onModalAction('open', { type: 'analysis', isLoading: true });
         const sortedProgress = [...progress].sort((a,b) => new Date(a.date.seconds * 1000) - new Date(b.date.seconds * 1000));
         const progressString = sortedProgress.map(p => `Data: ${new Date(p.date.seconds * 1000).toLocaleDateString('pt-BR')}, Peso: ${p.weight}kg`).join('; ');
-
-        const prompt = `Sou um homem de ${user.profile.age} anos tentando emagrecer. Meu peso alvo implícito é menor que o peso inicial. Meu histórico de peso recente é: ${progressString}. Com base nisso, escreva uma análise curta e uma mensagem motivacional em português do Brasil. Seja encorajador, mesmo que o progresso não seja linear. Finalize com uma dica prática e acionável para a próxima semana. Formate a resposta como um pequeno parágrafo de análise, seguido por "Dica da IA:" com a dica.`;
+        const prompt = `Sou um homem de ${user.profile.age} anos a tentar emagrecer. O meu peso alvo implícito é menor que o peso inicial. O meu histórico de peso recente é: ${progressString}. Com base nisso, escreva uma análise curta e uma mensagem motivacional em português do Brasil. Seja encorajador, mesmo que o progresso não seja linear. Finalize com uma dica prática e acionável para a próxima semana. Formate a resposta como um pequeno parágrafo de análise, seguido por "Dica da IA:" com a dica.`;
         const generatedAnalysis = await callGemini(prompt);
         onModalAction('update', { content: generatedAnalysis, isLoading: false });
     };
@@ -480,7 +358,7 @@ const ProgressTracker = ({ user, progress, onAddProgress, onModalAction }) => {
                         <label className="block text-sm font-medium text-gray-300 mb-1">Cintura (cm) <span className="text-xs text-gray-500">(Opcional)</span></label>
                         <input type="number" step="0.1" name="waist" value={formData.waist} onChange={handleChange} className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white" />
                     </div>
-                    <button type="submit" className="w-full md:w-auto bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-md transition-colors">Salvar</button>
+                    <button type="submit" className="w-full md:w-auto bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-md">Salvar</button>
                  </form>
             </div>
             {progress.length > 0 && (
@@ -511,13 +389,10 @@ const ProgressTracker = ({ user, progress, onAddProgress, onModalAction }) => {
              {progress.length > 1 && (
                 <div className="bg-gray-800 p-6 rounded-lg">
                     <h3 className="text-xl font-semibold text-cyan-400 mb-3">Análise Inteligente</h3>
-                    <p className="text-gray-300 mb-4">Peça ao seu assistente de IA para analisar seu progresso e te dar uma dica motivacional.</p>
-                     <button 
-                        onClick={handleAnalyzeProgress}
-                        className="flex items-center justify-center gap-2 w-full md:w-auto bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-2 px-6 rounded-md transition-all"
-                    >
+                    <p className="text-gray-300 mb-4">Peça ao seu assistente de IA para analisar o seu progresso e dar-lhe uma dica motivacional.</p>
+                     <button onClick={handleAnalyzeProgress} className="flex items-center justify-center gap-2 w-full md:w-auto bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold py-2 px-6 rounded-md">
                         <Sparkles className="w-5 h-5"/>
-                        ✨ Analisar Meu Progresso
+                        ✨ Analisar o Meu Progresso
                     </button>
                 </div>
              )}
@@ -575,26 +450,12 @@ export default function App() {
         } catch (error) {
             console.error("Erro no login com Google: ", error);
             if (error.code === 'auth/unauthorized-domain') {
-                console.error(
-                    "--- AÇÃO NECESSÁRIA PARA O DESENVOLVEDOR ---\n" +
-                    "O domínio deste aplicativo não está autorizado para autenticação no seu projeto Firebase.\n\n" +
-                    "Para corrigir, siga estes passos:\n" +
-                    "1. Vá para o seu Projeto no Firebase Console.\n" +
-                    "2. No menu à esquerda, vá para 'Authentication'.\n" +
-                    "3. Clique na aba 'Settings' (Configurações).\n" +
-                    "4. Em 'Authorized domains' (Domínios autorizados), clique em 'Add domain' (Adicionar domínio).\n" +
-                    "5. Adicione o seguinte domínio: " + window.location.hostname + "\n" +
-                    "6. Clique em 'Add' e aguarde alguns minutos para a configuração propagar. Depois, tente fazer login novamente.\n\n" +
-                    "Este passo é crucial para permitir que o Google se comunique com seu app de forma segura."
-                );
+                console.error("--- AÇÃO NECESSÁRIA PARA O DESENVOLVEDOR ---");
             }
         }
     };
 
-    const handleLogout = async () => {
-        await signOut(auth);
-        setView('dashboard');
-    };
+    const handleLogout = async () => { await signOut(auth); setView('dashboard'); };
 
     const calculateMetrics = (profileData) => {
         const { age, weight, height, activityLevel } = profileData;
@@ -655,12 +516,7 @@ export default function App() {
 
     const handleModalAction = (action, payload) => {
         if (action === 'open') {
-            setModalState({ 
-                isOpen: true, 
-                type: payload.type, 
-                content: '', 
-                isLoading: payload.isLoading 
-            });
+            setModalState({ isOpen: true, type: payload.type, content: '', isLoading: payload.isLoading });
         } else if (action === 'update') {
             setModalState(prev => ({ ...prev, ...payload }));
         } else if (action === 'close') {
@@ -668,21 +524,9 @@ export default function App() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-                <Dumbbell className="animate-spin w-12 h-12 text-cyan-500" />
-            </div>
-        )
-    }
-
-    if (!user) {
-        return <LoginScreen onLogin={handleLogin} />;
-    }
-
-    if (!user.profile) {
-        return <ProfileSetup onSave={handleSaveProfile} />;
-    }
+    if (loading) { return (<div className="flex items-center justify-center min-h-screen bg-gray-900 text-white"><Dumbbell className="animate-spin w-12 h-12 text-cyan-500" /></div>) }
+    if (!user) { return <LoginScreen onLogin={handleLogin} />; }
+    if (!user.profile) { return <ProfileSetup onSave={handleSaveProfile} />; }
 
     const renderView = () => {
         const props = { user, onModalAction };
@@ -708,9 +552,7 @@ export default function App() {
                 isLoading={modalState.isLoading}
             />
             <Header user={user} onNavigate={setView} onLogout={handleLogout} activeView={view} />
-            <main className="container mx-auto p-4 md:p-6">
-                {renderView()}
-            </main>
+            <main className="container mx-auto p-4 md:p-6">{renderView()}</main>
         </div>
     );
 }
