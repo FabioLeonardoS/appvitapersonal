@@ -1,10 +1,16 @@
 # Etapa 1: Construir a aplicação React
 FROM node:18-alpine AS build
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm install
+
+# Usa o formato de array para maior robustez
+RUN ["npm", "install"]
+
 COPY . .
-RUN npm run build
+
+# Usa o formato de array e aponta para o script local
+RUN ["npm", "run", "build"]
 
 # Etapa 2: Servir a aplicação com Nginx
 FROM nginx:1.25-alpine
