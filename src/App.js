@@ -1,7 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
+Visão Geral
+O problema era um erro de sintaxe no ficheiro App.js. Uma função do Firebase (getDocs) não estava a ser importada, e um parâmetro (onModalAction) não estava a ser passado corretamente para todos os componentes que precisavam dele. A versão abaixo corrige estes dois problemas.
+
+Etapa 1: A Correção Final (no seu computador)
+Você só precisa de atualizar um ficheiro.
+
+Abra o ficheiro src/App.js na pasta do seu projeto.
+
+Apague todo o conteúdo e substitua-o por esta versão final e corrigida:
+
+import React, { useState, useEffect } from 'react';
+// FIX: Added 'getDocs' to the import list
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, onSnapshot, serverTimestamp, getDocs } from 'firebase/firestore';
 import { Dumbbell, UtensilsCrossed, TrendingUp, User, Flame, Droplet, HeartPulse, BrainCircuit, CheckCircle, Target, Sun, Moon, Sparkles, Bot, LogOut, Video } from 'lucide-react';
 
 // --- INÍCIO DA CONFIGURAÇÃO DO FIREBASE ---
