@@ -1,24 +1,23 @@
 # Etapa 1: Construir a aplicação React
-# Usamos uma imagem oficial do Node.js como base
 FROM node:18-alpine AS build
 
 # Define o diretório de trabalho
 WORKDIR /app
 
-# Copia os ficheiros de manifesto. O lockfile é essencial para o npm ci.
+# Copia os ficheiros de manifesto primeiro para aproveitar o cache do Docker
 COPY package*.json ./
 
-# Instala as dependências de forma limpa e otimizada para CI/CD
+# Instala as dependências de forma limpa
 RUN npm ci
 
 # Copia o resto do código fonte da aplicação
 COPY . .
 
-# ADIÇÃO CRUCIAL: Adiciona o diretório de binários local ao PATH do sistema
-# Isto garante que comandos como 'react-scripts' sejam encontrados.
-ENV PATH /app/node_modules/.bin:$PATH
+# CORREÇÃO CRUCIAL: Usa a sintaxe key=value para o ENV PATH
+# Isto garante que o caminho para os executáveis npm seja encontrado.
+ENV PATH="/app/node_modules/.bin:${PATH}"
 
-# Executa o build. Agora o comando deve ser encontrado.
+# Executa o build
 RUN npm run build
 
 # ---
