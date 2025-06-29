@@ -1,15 +1,82 @@
 Visão Geral
-O problema era um erro de sintaxe no ficheiro App.js. Uma função do Firebase (getDocs) não estava a ser importada, e um parâmetro (onModalAction) não estava a ser passado corretamente para todos os componentes que precisavam dele. A versão abaixo corrige estes dois problemas.
+Vamos seguir 3 fases:
 
-Etapa 1: A Correção Final (no seu computador)
-Você só precisa de atualizar um ficheiro.
+Fase 1: Criar a Estrutura Base: Usaremos o comando create-react-app para criar o esqueleto do projeto.
 
-Abra o ficheiro src/App.js na pasta do seu projeto.
+Fase 2: Instalar Dependências e Configurar o Estilo: Instalaremos as bibliotecas extra (firebase, lucide-react) e o Tailwind CSS, que é o responsável pelo visual da aplicação.
 
-Apague todo o conteúdo e substitua-o por esta versão final e corrigida:
+Fase 3: Adicionar os Nossos Ficheiros: Substituiremos os ficheiros padrão pelos que desenvolvemos e adicionaremos os ficheiros para o Docker.
 
-import React, { useState, useEffect } from 'react';
-// FIX: Added 'getDocs' to the import list
+Fase 1: Criar a Estrutura Base do Projeto
+Abra o Visual Studio Code.
+
+Vá ao menu superior e clique em Terminal -> New Terminal. Um terminal irá abrir na parte inferior do editor.
+
+No terminal, navegue até à sua pasta de projetos:
+
+cd C:\Users\fabio\projetos
+
+Agora, execute o comando oficial para criar um novo projeto React. Isto irá criar uma nova pasta appvitapersonal com todos os ficheiros iniciais.
+
+npx create-react-app appvitapersonal
+
+(Isto pode demorar alguns minutos).
+
+Após a conclusão, entre na nova pasta do projeto:
+
+cd appvitapersonal
+
+Fase 2: Instalar Dependências e Configurar o Estilo (Tailwind CSS)
+Agora, vamos adicionar as bibliotecas que a nossa aplicação precisa.
+
+Instale as Bibliotecas da Aplicação: No terminal (já dentro da pasta appvitapersonal), execute:
+
+npm install firebase lucide-react
+
+Instale o Tailwind CSS: Esta é a biblioteca de design que usamos.
+
+npm install -D tailwindcss postcss autoprefixer
+
+Crie Manualmente os Ficheiros de Configuração: Na raiz da sua pasta appvitapersonal (ao mesmo nível que package.json), crie os dois ficheiros seguintes:
+
+Crie o ficheiro tailwind.config.js e cole isto dentro:
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+
+Crie o ficheiro postcss.config.js e cole isto dentro:
+
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+
+Configure o CSS Principal: Vá para a pasta src e abra o ficheiro index.css. Apague todo o conteúdo e cole estas três linhas:
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+Fase 3: Adicionar os Nossos Ficheiros
+Agora vamos substituir os ficheiros genéricos pelos ficheiros do nosso appvitapersonal.
+
+Ficheiro Principal da App (src/App.js):
+
+Na pasta src, abra o App.js.
+
+Apague todo o conteúdo e cole o código final e corrigido da nossa aplicação:
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, onSnapshot, serverTimestamp, getDocs } from 'firebase/firestore';
@@ -17,13 +84,13 @@ import { Dumbbell, UtensilsCrossed, TrendingUp, User, Flame, Droplet, HeartPulse
 
 // --- INÍCIO DA CONFIGURAÇÃO DO FIREBASE ---
 const firebaseConfig = {
-  apiKey: "AIzaSyAhQh60godGhLrNLIFPvDUujupk_RXlhSA",
-  authDomain: "vitapersonal-35aa7.firebaseapp.com",
-  projectId: "vitapersonal-35aa7",
-  storageBucket: "vitapersonal-35aa7.appspot.com",
-  messagingSenderId: "407585522071",
-  appId: "1:407585522071:web:b0dcfba88124a570ad84d2",
-  measurementId: "G-YYPZLH5JF1"
+    apiKey: "AIzaSyAhQh60godGhLrNLIFPvDUujupk_RXlhSA",
+    authDomain: "vitapersonal-35aa7.firebaseapp.com",
+    projectId: "vitapersonal-35aa7",
+    storageBucket: "vitapersonal-35aa7.appspot.com",
+    messagingSenderId: "407585522071",
+    appId: "1:407585522071:web:b0dcfba88124a570ad84d2",
+    measurementId: "G-YYPZLH5JF1"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -33,11 +100,9 @@ const db = getFirestore(app);
 
 // --- FUNÇÃO DE CHAMADA DA API GEMINI ---
 async function callGemini(prompt) {
-    const apiKey = ""; // Deixar em branco
+    const apiKey = "";
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    const payload = {
-        contents: [{ role: "user", parts: [{ text: prompt }] }]
-    };
+    const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
     try {
         const response = await fetch(apiUrl, {
             method: 'POST',
