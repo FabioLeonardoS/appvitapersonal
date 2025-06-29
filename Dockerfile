@@ -1,24 +1,20 @@
 # Etapa 1: Construir a aplicação React
-# Usamos a imagem 'slim' que é mais robusta para evitar erros de "comando não encontrado"
-FROM node:18-slim AS build
+# Usamos uma imagem oficial do Node.js como base
+FROM node:18-alpine AS build
 
 # Define o diretório de trabalho
 WORKDIR /app
 
-# Copia os ficheiros de manifesto primeiro para aproveitar o cache do Docker
-COPY package*.json ./
+# Copia os ficheiros de manifesto. O lockfile é essencial para o npm ci.
+COPY package.json package-lock.json ./
 
-# Instala as dependências
-RUN npm install
+# Instala as dependências de forma limpa e otimizada para CI/CD
+RUN npm ci
 
-# Copia o resto dos ficheiros da aplicação
+# Copia o resto do código fonte da aplicação
 COPY . .
 
-# ADIÇÃO CRUCIAL: Adiciona o diretório de binários local ao PATH do sistema
-# Isto garante que comandos como 'react-scripts' sejam encontrados.
-ENV PATH /app/node_modules/.bin:$PATH
-
-# Executa o build
+# Executa o build. O npm ci garante que o react-scripts está no sítio certo.
 RUN npm run build
 
 # ---
@@ -35,8 +31,5 @@ RUN rm /etc/nginx/conf.d/default.conf
 # Copia a nossa configuração personalizada para o Nginx
 COPY nginx.conf /etc/nginx/conf.d
 
-# Expõe a porta 80 para o tráfego de entrada
 EXPOSE 80
-
-# Comando para iniciar o servidor Nginx quando o contentor arrancar
 CMD ["nginx", "-g", "daemon off;"]
