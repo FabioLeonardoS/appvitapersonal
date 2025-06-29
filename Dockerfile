@@ -14,8 +14,9 @@ RUN npm install
 # Copia o resto dos ficheiros da aplicação
 COPY . .
 
-# Define a variável de ambiente para aumentar a memória do Node.js durante o build
-ENV NODE_OPTIONS=--max-old-space-size=4096
+# ADIÇÃO CRUCIAL: Adiciona o diretório de binários local ao PATH do sistema
+# Isto garante que comandos como 'react-scripts' sejam encontrados.
+ENV PATH /app/node_modules/.bin:$PATH
 
 # Executa o build
 RUN npm run build
