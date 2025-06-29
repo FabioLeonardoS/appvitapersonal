@@ -6,7 +6,7 @@ FROM node:18-alpine AS build
 WORKDIR /app
 
 # Copia os ficheiros de manifesto. O lockfile é essencial para o npm ci.
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
 # Instala as dependências de forma limpa e otimizada para CI/CD
 RUN npm ci
@@ -14,7 +14,11 @@ RUN npm ci
 # Copia o resto do código fonte da aplicação
 COPY . .
 
-# Executa o build. O npm ci garante que o react-scripts está no sítio certo.
+# ADIÇÃO CRUCIAL: Adiciona o diretório de binários local ao PATH do sistema
+# Isto garante que comandos como 'react-scripts' sejam encontrados.
+ENV PATH /app/node_modules/.bin:$PATH
+
+# Executa o build. Agora o comando deve ser encontrado.
 RUN npm run build
 
 # ---
