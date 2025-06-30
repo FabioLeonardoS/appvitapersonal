@@ -2,10 +2,7 @@
 FROM node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
-
-# MUDANÇA CRUCIAL: Usamos 'npm install' em vez de 'npm ci' para ser mais flexível
-RUN npm install
-
+RUN npm ci
 COPY . .
 ENV PATH /app/node_modules/.bin:$PATH
 RUN npm run build
