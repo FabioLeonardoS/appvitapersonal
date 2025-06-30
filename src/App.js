@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// FIX: Added 'getDocs' to the import list
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, onSnapshot, serverTimestamp, getDocs } from 'firebase/firestore';
@@ -445,13 +446,10 @@ export default function App() {
 
     const handleLogin = async () => {
         const provider = new GoogleAuthProvider();
-        try {
-            await signInWithPopup(auth, provider);
-        } catch (error) {
+        try { await signInWithPopup(auth, provider); }
+        catch (error) {
             console.error("Erro no login com Google: ", error);
-            if (error.code === 'auth/unauthorized-domain') {
-                console.error("--- AÇÃO NECESSÁRIA PARA O DESENVOLVEDOR ---");
-            }
+            if (error.code === 'auth/unauthorized-domain') { console.error("--- AÇÃO NECESSÁRIA PARA O DESENVOLVEDOR ---"); }
         }
     };
 
@@ -463,9 +461,7 @@ export default function App() {
         const tdee = bmr * parseFloat(activityLevel);
         const calorieTarget = tdee - 500;
         return {
-            bmr: Math.round(bmr),
-            tdee: Math.round(tdee),
-            calorieTarget: Math.round(calorieTarget),
+            bmr: Math.round(bmr), tdee: Math.round(tdee), calorieTarget: Math.round(calorieTarget),
             macros: {
                 protein: Math.round((calorieTarget * 0.40) / 4),
                 carbs: Math.round((calorieTarget * 0.30) / 4),
@@ -477,10 +473,8 @@ export default function App() {
     const handleSaveProfile = async (formData) => {
         if (!user) return;
         const profileData = {
-            age: parseInt(formData.age),
-            weight: parseFloat(formData.weight),
-            height: parseInt(formData.height),
-            activityLevel: parseFloat(formData.activityLevel),
+            age: parseInt(formData.age), weight: parseFloat(formData.weight),
+            height: parseInt(formData.height), activityLevel: parseFloat(formData.activityLevel),
         };
         const metrics = calculateMetrics(profileData);
         const fullProfile = { ...profileData, ...metrics };
@@ -493,9 +487,7 @@ export default function App() {
                 await handleAddProgress({ weight: profileData.weight, waist: null });
             }
             setView('dashboard');
-        } catch (error) {
-            console.error("Erro ao salvar perfil: ", error);
-        }
+        } catch (error) { console.error("Erro ao salvar perfil: ", error); }
     };
 
     const handleAddProgress = async (progressData) => {
@@ -509,19 +501,13 @@ export default function App() {
             const newMetrics = calculateMetrics({ ...user.profile, weight: progressData.weight });
             await setDoc(doc(db, `users/${user.uid}`), { weight: parseFloat(progressData.weight), ...newMetrics }, { merge: true });
             setUser(prev => ({...prev, profile: {...prev.profile, weight: parseFloat(progressData.weight), ...newMetrics}}));
-        } catch (error) {
-            console.error("Erro ao adicionar progresso: ", error);
-        }
+        } catch (error) { console.error("Erro ao adicionar progresso: ", error); }
     };
 
     const handleModalAction = (action, payload) => {
-        if (action === 'open') {
-            setModalState({ isOpen: true, type: payload.type, content: '', isLoading: payload.isLoading });
-        } else if (action === 'update') {
-            setModalState(prev => ({ ...prev, ...payload }));
-        } else if (action === 'close') {
-            setModalState({ isOpen: false, type: '', content: '', isLoading: false });
-        }
+        if (action === 'open') { setModalState({ isOpen: true, type: payload.type, content: '', isLoading: payload.isLoading }); }
+        else if (action === 'update') { setModalState(prev => ({ ...prev, ...payload })); }
+        else if (action === 'close') { setModalState({ isOpen: false, type: '', content: '', isLoading: false }); }
     };
 
     if (loading) { return (<div className="flex items-center justify-center min-h-screen bg-gray-900 text-white"><Dumbbell className="animate-spin w-12 h-12 text-cyan-500" /></div>) }
@@ -529,7 +515,8 @@ export default function App() {
     if (!user.profile) { return <ProfileSetup onSave={handleSaveProfile} />; }
 
     const renderView = () => {
-        const props = { user, onModalAction };
+        // FIX: Pass onModalAction correctly
+        const props = { user, onModalAction: handleModalAction };
         switch(view) {
             case 'dashboard': return <Dashboard {...props} />;
             case 'workout': return <WorkoutPlan {...props} />;
