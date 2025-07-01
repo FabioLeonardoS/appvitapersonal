@@ -3,11 +3,15 @@ FROM node:18-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 
-# MUDANÇA CRUCIAL: Usamos 'npm install' em vez de 'npm ci' para ser mais flexível
+# Usa npm install para ser mais flexível
 RUN npm install
 
 COPY . .
+
+# Adiciona explicitamente o caminho dos binários ao PATH
 ENV PATH /app/node_modules/.bin:$PATH
+
+# Executa o build
 RUN npm run build
 
 # Etapa 2: Servir a aplicação com Nginx

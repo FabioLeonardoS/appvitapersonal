@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// FIX: Added 'getDocs' to the import list
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, onSnapshot, serverTimestamp, getDocs } from 'firebase/firestore';
